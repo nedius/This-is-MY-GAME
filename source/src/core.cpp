@@ -631,6 +631,18 @@
         static bool settNet=false;
         static bool settDev=false;
 
+        static bool showCredit=false;
+        string credits=R"(CREDITS:
+Created by NeDius!
+Song:
+    Death song from Dark Souls
+    Some examples from sunvox
+    Some nice music
+Images:
+    Almost everything is not mine
+    I only edited
+    )";
+
         form::Label fps(0, 0, "0"); //fps
 
         form::Button button(30, 130);
@@ -725,7 +737,7 @@
 
             if( button4.select(mouse, MouseReleased)){ window.setMouseCursorVisible(false); return;} //resume
             if( button5.select(mouse, MouseReleased)){ if(setings) setings=false; else setings=true; } //setiings
-            if( button7.select(mouse, MouseReleased)){ cout<<"Credits"<<endl; } //credits
+            if( button7.select(mouse, MouseReleased)){ if(showCredit) showCredit=false; else showCredit=true; } //credits
             if( button6.select(mouse, MouseReleased)){ close=true; window.close(); } //exit
 
             if(setings){
@@ -848,6 +860,8 @@
             fps.text=IntToString(GetFrameRate());
             fps.displayText(window);
             drawText(window, font, 50, 670, 25, "This Is My game");
+
+            if(showCredit) drawText(window, font, 30, 670, 100, credits);
 
             window.display();
         }
