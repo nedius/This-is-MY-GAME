@@ -10,7 +10,14 @@
                 image.createMaskFromColor(sf::Color(0,0,0));
                 texture.loadFromImage(image);
                 sprite.setTexture(texture);
+                fireI.loadFromFile("data/tex/fire.png");
+                fireI.createMaskFromColor(sf::Color(0,0,0));
+                fireT.loadFromImage(fireI);
+                fire.setTexture(fireT);
+                fire.setOrigin(fire.getLocalBounds().width/2, fire.getLocalBounds().height/2);
+                fire.setScale(0.27, 0.27);
                 x = X; y = Y;
+                spawnX=X; spawnY=Y;
                 sprite.setTextureRect(sf::IntRect(13, 250, w, h));
              }
 
@@ -47,14 +54,43 @@
 
                             if (tiledMap.getTileID(i, j) == 'r' || tiledMap.getTileID(i, j) == 's'){
                                 if (dy>0) y = (i * sprite_p - h/2);
-                                if (dy<0) { y = (i * sprite_p + sprite_p); if(hasFocus) if(sf::Keyboard::isKeyPressed(sf::Keyboard::Return)) MakeDISASTER(); }//system("start chrome http://coub.com/nedfavre"); }
-                                if (dx>0) x = (j * sprite_p - w/4);
+                                if (dy<0) { y = (i * sprite_p + sprite_p); }//system("start chrome http://coub.com/nedfavre"); }
+                                if (dx>0) { x = (j * sprite_p - w/4); x=250; y=4170; dir=1; speed=0; inCave=true; } //157.972x 4173.07y
                                 if (dx<0) x = (j * sprite_p + sprite_p)+w/6;
                             }
 
-                            if (tiledMap.getTileID(i, j) == 'a') {
-                                x = 300; y = 300;
-                                tiledMap.setTileID(i, j, ' ');
+                            if (inCave){
+                                int i = ((int)y-40*sprite_p) / sprite_p;
+                                if (tiledMap.getTileIDC(i, j) == 't' || tiledMap.getTileIDC(i, j) == 'C' || tiledMap.getTileIDC(i, j) == 'D'){
+                                    if (dy>0) y = (i * sprite_p + 3840 - h/16); //
+                                    if (dy<0) y = (i * sprite_p + 3840 + sprite_p);
+                                    if (dx>0) x = (j * sprite_p - w/4); //
+                                    if (dx<0) x = (j * sprite_p + sprite_p)+w/6;
+                                }
+
+                               if (i==3 && j==0){ x=520; y=1275; }
+
+                                if (tiledMap.getTileIDCB(i, j) == 'l' || tiledMap.getTileIDCB(i, j) == 'v' ) {
+                                    isOnFire=true;
+                                    fire_timer=100;
+                                }else{ isOnFire=false;
+                                        if(fire_timer!=0) fire_timer--;
+                                }
+
+                            }
+
+
+
+                            //if (tiledMap.getTileID(i, j) == 'a') {
+                            //    x = 300; y = 300;
+                            //    tiledMap.setTileID(i, j, ' ');
+                            //}
+
+                            if (tiledMap.getTileIDB(i, j) == 'l' || tiledMap.getTileIDB(i, j) == 'v' ) {
+                                isOnFire=true;
+                                fire_timer=100;
+                            }else{ isOnFire=false;
+                                    if(fire_timer!=0) fire_timer--;
                             }
                         }
                 }
@@ -75,6 +111,13 @@
              speed = 0;
              sprite.setPosition(x,y);
              interactionWithMap();
+             if(health<=100) health+=0.01*time;
+             if(isOnFire) if(health>0) health-=0.1*time;
+             if(fire_timer>0) if(health>0) health-=0.1*time;
+             if(health>100) health=100;
+             //cout<<health<<" HP"<<endl;
+             //if(health<=0) dead=true; else dead=false;
+             if(y>32*40*tiledMap.getMapScale()) inCave=true; else inCave=false;
              }
 
     void Player::impulse(int dir, float speed){
@@ -101,6 +144,11 @@
             if(id=="downI") sprite.setTextureRect(getIntRect(id, CurrentFrame, isBack));
         }
         //sprite.setTextureRect(intrect);
+        if(isOnFire || fire_timer!=0){
+            //fire.setOrigin(fire.getGlobalBounds().width/2, fire.getGlobalBounds().height/2);
+            if(tiledMap.getFrame()==1) fire.setScale(-0.27, 0.27); else fire.setScale(0.27, 0.27);
+            fire.setPosition(sprite.getPosition().x, sprite.getPosition().y); //-sprite.getGlobalBounds().width/2 -sprite.getGlobalBounds().height/2
+        }
     }
 
     sf::IntRect Player::getIntRect(string id, int CurrentFrame, int isBack){
@@ -245,19 +293,54 @@
 
     void Player::draw(sf::RenderWindow& window){
         window.draw(sprite);
+        if(isOnFire || fire_timer!=0) window.draw(fire);
         hasFocus=window.hasFocus();
     }
 
-    void Player::changeCharacter(){
-        if(File=="Pope_Casual") File="Ezella";
-        else if(File=="Ezella") File="Pope_Casual";
+    void Player::changeCharacter(int characterID=0){
+        if(characterID==0)
+            {
+                if(File=="Pope_Casual") File="Ezella";
+                else if(File=="Ezella") File="Pope_Casual";
+            }
+        if(characterID==-1) File="Pope_Casual";
+        if(characterID==-2) File="Ezella";
         image.loadFromFile("data/tex/" + File + ".png");
         image.createMaskFromColor(sf::Color(0,0,0));
         texture.loadFromImage(image);
         sprite.setTexture(texture);
+        chChanged=true;
         Sleep(100);
+    }
+
+    bool Player::isCharacterChanged(){
+        if(chChanged){ chChanged=false; return true;}
+        return false;
     }
 
     string Player::getCharacter(){
         return File;
+    }
+
+    int Player::getHealth(){
+        return health;
+    }
+
+    void Player::setHealth(int newHealth){
+        health=newHealth;
+    }
+
+    void Player::setDeath(){
+        health=100;
+        isOnFire=false;
+        fire_timer=0;
+    }
+
+    bool Player::isInCave(){
+        return inCave;
+    }
+
+    void Player::toSpawn(){
+        x=spawnX;
+        y=spawnY;
     }

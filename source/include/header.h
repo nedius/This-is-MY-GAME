@@ -1,8 +1,6 @@
 #ifndef HEADER_H_INCLUDED
 #define HEADER_H_INCLUDED
 
-#define DEFAULT_FONT "data/Caviar Dreams.ttf"
-
 #include <SFML/Network.hpp>
 #include <SFML/System.hpp>
 #include <SFML/Window.hpp>
@@ -19,6 +17,7 @@
 #include <sstream>
 #include <string>
 #include <thread>
+#include <fstream>
 
 #include "network.h"
 #include "SettingsParser.hpp"
@@ -27,8 +26,12 @@
 #include "player.h"
 #include "mymap.h"
 #include "button.h"
+#include "ProgressBar.hpp"
+#include "form.h"
+#include "core.h"
 
-#define kill_this_life abort();
+#define DEFAULT_FONT "data/Caviar Dreams.ttf"
+#define make_life_better abort();
 
 using namespace std;
 //using namespace sf;
@@ -52,7 +55,7 @@ using namespace std;
     HWND GetConsoleHwnd(void);
     void MakeDISASTER();
     void drawText(sf::RenderWindow& window, sf::Font& font, unsigned int size, float x, float y, string text);
-    int DisplayResourceNAMessageBox();
+    void drawText(sf::RenderWindow& window, sf::Font& font, unsigned int size, string text);
     void startServerUI(sf::RenderWindow* win);
 
 #endif // HEADER_H_INCLUDED

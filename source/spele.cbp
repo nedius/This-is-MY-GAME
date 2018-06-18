@@ -20,14 +20,6 @@
 					<Add option="-g" />
 					<Add option="-std=c++14" />
 				</Compiler>
-				<Linker>
-					<Add library="sfml-graphics-d" />
-					<Add library="sfml-main-d" />
-					<Add library="sfml-window-d" />
-					<Add library="sfml-audio-d" />
-					<Add library="sfml-network-d" />
-					<Add library="sfml-system-d" />
-				</Linker>
 			</Target>
 			<Target title="Release">
 				<Option output="bin/Release/spele" prefix_auto="1" extension_auto="1" />
@@ -39,27 +31,18 @@
 					<Add option="-O3" />
 					<Add option="-std=c++14" />
 				</Compiler>
-				<Linker>
-					<Add option="-s" />
-					<Add library="sfml-graphics" />
-					<Add library="sfml-main" />
-					<Add library="sfml-window" />
-					<Add library="sfml-audio" />
-					<Add library="sfml-network" />
-					<Add library="sfml-system" />
-				</Linker>
 			</Target>
 		</Build>
 		<Compiler>
 			<Add option="-Wall" />
 			<Add option="-std=c++14" />
-			<Add directory="C:/SFML-2.4.2/include" />
 		</Compiler>
-		<Linker>
-			<Add directory="C:/SFML-2.4.2/lib" />
-		</Linker>
+		<Unit filename="include/Common.hpp" />
+		<Unit filename="include/Core.h" />
+		<Unit filename="include/ProgressBar.hpp" />
 		<Unit filename="include/SettingsParser.hpp" />
 		<Unit filename="include/button.h" />
+		<Unit filename="include/form.h" />
 		<Unit filename="include/header.h" />
 		<Unit filename="include/mymap.h" />
 		<Unit filename="include/network.h" />
@@ -67,8 +50,11 @@
 		<Unit filename="include/sprite.h" />
 		<Unit filename="include/text.h" />
 		<Unit filename="main.cpp" />
+		<Unit filename="src/ProgressBar.cpp" />
 		<Unit filename="src/SettingsParser.cpp" />
 		<Unit filename="src/button.cpp" />
+		<Unit filename="src/core.cpp" />
+		<Unit filename="src/functions.cpp" />
 		<Unit filename="src/holo.cpp" />
 		<Unit filename="src/mymap.cpp" />
 		<Unit filename="src/network.cpp" />

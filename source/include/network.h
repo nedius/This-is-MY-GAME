@@ -3,16 +3,6 @@
 
 using namespace std;
 
-    class Core{
-        private:
-            //int i;
-
-        public:
-            //Core();
-            //~Core();
-
-    };
-
     class Net{
         private:
             sf::UdpSocket net;
@@ -34,15 +24,18 @@ using namespace std;
 
             string ID1="pe", ID2="vt", ID;
             bool isClose=false;
+            bool isDebug=false;
             int i=0;
             sf::Mutex mutex;
             //sf::Thread thread(this->SendToClient);
             sf::RenderWindow window;
 
+            bool clientStarted=false;
+
 
 
         public:
-            //Net();
+            Net();
             //~Net();
             void setIPadress(sf::IpAddress);
             bool runUdpServer();
@@ -57,6 +50,8 @@ using namespace std;
             void stopUdpClient();
             string getID();
             string getPStats(int);
+            sf::IpAddress getIPAdress();
+            bool getClientStatus();
 
     };
 

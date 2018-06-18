@@ -10,7 +10,9 @@
             string File;
             string PlayerName;
             sf::Image image;
+            sf::Image fireI;
             sf::Texture texture;
+            sf::Texture fireT;
 
             MyMap& tiledMap;
 
@@ -22,13 +24,21 @@
             int dir;
             float speed;
             float x, y, h, w;
+            float spawnX, spawnY;
             sf::Sprite sprite;
+            sf::Sprite fire;
 
 
             float CurrentFrame=0;
             unsigned short isBack=1;
 
+            bool chChanged=false;
+            bool isOnFire=false;
+            //bool dead=false;
+            bool inCave=false;
 
+            float health=100;
+            int fire_timer=0;
 
             /// id1 Pope_Casual
             float w1=53, h1=86;
@@ -63,8 +73,14 @@
             sf::Vector2f getPosition();
             void setPosition(float x, float y);
             void draw(sf::RenderWindow&);
-            void changeCharacter();
+            void changeCharacter(int characterID);
+            bool isCharacterChanged();
             string getCharacter();
+            int getHealth();
+            void setHealth(int newHealth);
+            void setDeath();
+            bool isInCave();
+            void toSpawn();
 
 
     };

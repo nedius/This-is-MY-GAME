@@ -11,9 +11,14 @@
             sf::RenderWindow& window;
             int HEIGHT_MAP=40;
             int WIDTH_MAP=43;
+            int CAVE_HEIGHT_MAP=20;
+            int CAVE_WIDTH_MAP=20;
 
             string tileMap[40];
-            string tileMapLayer[40];
+            string tileMapF[40];
+            string tileMapB[40];
+            string caveMap[20];
+            string caveMapB[20];
 
             sf::Image map_image;
             sf::Texture map;
@@ -21,18 +26,23 @@
             float map_scale=3;
 
             float timer=0;
+            int frame=0;
 
         public:
             MyMap(sf::RenderWindow&);
-            void draw();
+            void draw(int id);
             void drawLayer();
             char getTileID(int x, int y);
             void setTileID(int x, int y, char tileID);
+            char getTileIDB(int x, int y);
+            char getTileIDC(int x, int y);
+            char getTileIDCB(int x, int y);
             unsigned short getHeight();
             unsigned short getWidth();
             float getMapScale();
             void captureMap();
             void update(float time);
+            int getFrame();
     };
 
 #endif // MAP_H_INCLUDED

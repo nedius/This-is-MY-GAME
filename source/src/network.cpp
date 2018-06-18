@@ -1,34 +1,10 @@
 #include "../include/header.h"
 
-        void SCTitle(int state, string text){
-        if(state==0){
-            string temp="NeDius chat: "+text;
-            SetConsoleTitle(temp.c_str());
-        }else if(state==1){
-            SetConsoleTitle(text.c_str());}
-        }
-
-       HWND GetConsoleHwnd(void){
-           #define MY_BUFSIZE 1024 // Buffer size for console window titles.
-           HWND hwndFound;         // This is what is returned to the caller.
-           char pszNewWindowTitle[MY_BUFSIZE]; // Contains fabricated WindowTitle.
-           char pszOldWindowTitle[MY_BUFSIZE]; // Contains original WindowTitle
-           // Fetch current window title.
-           GetConsoleTitle(pszOldWindowTitle, MY_BUFSIZE);
-           // Format a "unique" NewWindowTitle.
-           wsprintf(pszNewWindowTitle,"%d/%d",
-                       GetTickCount(),
-                       GetCurrentProcessId());
-           // Change current window title.
-           SetConsoleTitle(pszNewWindowTitle);
-           // Ensure window title has been updated.
-           Sleep(40);
-           // Look for NewWindowTitle.
-           hwndFound=FindWindow(NULL, pszNewWindowTitle);
-           // Restore original window title.
-           SetConsoleTitle(pszOldWindowTitle);
-           return(hwndFound);
-       }
+    Net::Net() : server(sf::IpAddress::LocalHost){
+        SettingsParser settings;
+        settings.loadFromFile("data/appdata");
+        settings.get("isDebug", isDebug);
+    }
 
         void Net::setIPadress(sf::IpAddress ip){
         //cout<<"ip: "<<ip<<endl;
@@ -48,6 +24,8 @@
         // Create a socket to receive a message from anyone
         //sf::UdpSocket socket;
         SCTitle(0 ,"server");
+
+        cout<<"Server isDebug="<<isDebug<<endl;
 
         HWND consoleHWND=GetConsoleHwnd();
 
@@ -141,7 +119,7 @@
 
                 time = clock.restart().asMicroseconds();
                 //clock.restart();
-                //time = time/3000;
+                time = time/3000;
                 //cout<<time<<endl;
 
                 //cout<<GetFrameRate()<<" tps "<<endl;
@@ -212,7 +190,7 @@
                     //continue; //return;
                 //net.setBlocking(true);
                 i++;
-                cout << i << "|in|" << sender << ":"<<senderPort<<"| " << (string)in << " " << endl;
+                if(isDebug) cout << i << "|in|" << sender << ":"<<senderPort<<"| " << (string)in << " " << endl;
                 }else{
 
                 if(ipp1!=sf::IpAddress::None && ipport1!=0){ //|| ipp1==sf::IpAddress::Any
@@ -221,7 +199,7 @@
                         if(!net.send(answer.c_str(),  answer.size() + 1, ipp1, ipport1) ){  //!= sf::Socket::Done
                     //answer="";
                     i++;
-                    cout << i << "|out|" << ipp1 << ":"<<ipport1<<"| " << answer << " " << endl;
+                    if(isDebug) cout << i << "|out|" << ipp1 << ":"<<ipport1<<"| " << answer << " " << endl;
                 }}
 
                 if(ipp2!=sf::IpAddress::None && ipport2!=0){
@@ -230,7 +208,7 @@
                         if(!net.send(answer.c_str(),  answer.size() + 1, ipp2, ipport2) ){  //!= sf::Socket::Done
                     //answer="";
                     i++;
-                    cout << i << "|out|" << ipp2 << ":"<<ipport2<<"| " << answer << " " << endl;
+                    if(isDebug) cout << i << "|out|" << ipp2 << ":"<<ipport2<<"| " << answer << " " << endl;
                 }} continue; }
 
                 net.setBlocking(true);
@@ -247,7 +225,7 @@
                 }else{answer="NOO"; if(net.send(answer.c_str(),  answer.size() + 1, sender, senderPort) != sf::Socket::Done) return false;} //!= sf::Socket::Done
 
                     i++;
-                    cout << i << "|out|" << sender << ":"<<senderPort<<"| " << answer << " " << endl;
+                    if(isDebug) cout << i << "|out|" << sender << ":"<<senderPort<<"| " << answer << " " << endl;
 
                 if(temp=="bye "+ID1){ ipp1=sf::IpAddress::None; ipport1=0; }
                 if(temp=="bye "+ID2){ ipp2=sf::IpAddress::None; ipport2=0; }
@@ -262,7 +240,7 @@
                         if(net.send(answer.c_str(),  answer.size() + 1, ipp1, ipport1) != sf::Socket::Done) return false; //!= sf::Socket::Done
                     //answer="";
                     i++;
-                    cout << i << "|out|" << ipp1 << ":"<<ipport1<<"| " << answer << " " << endl;
+                    if(isDebug) cout << i << "|out|" << ipp1 << ":"<<ipport1<<"| " << answer << " " << endl;
                 }
 
                 if(ipp2!=sf::IpAddress::None && ipport2!=0){
@@ -270,7 +248,7 @@
                         if(net.send(answer.c_str(),  answer.size() + 1, ipp2, ipport2) != sf::Socket::Done) return false; //!= sf::Socket::Done
                     //answer="";
                     i++;
-                    cout << i << "|out|" << ipp2 << ":"<<ipport2<<"| " << answer << " " << endl;
+                    if(isDebug) cout << i << "|out|" << ipp2 << ":"<<ipport2<<"| " << answer << " " << endl;
                 }
 
                 // Send an answer to the client
@@ -400,25 +378,31 @@
     void Net::runUdpClient(){
         SCTitle(0 ,"client");
 
-        p1.x=50; p1.y=15;
-        p2.x=100; p2.y=15;
+        cout<<"Server isDebug="<<isDebug<<endl;
+
+        p1.x=100; p1.y=-100;
+        p2.x=100; p2.y=-100;
         //cout<<FloatToStr(p1.x)<<" "<<FloatToStr(p1.y)<<endl;
 
         if(server==sf::IpAddress::None){
+            clientStarted=false;
+            return;
+        }
         // Ask for the server address
         //sf::IpAddress server;
         SCTitle(0 ,"client");
 
-        do
-        {
-            cout << "Type the address or name of the server to connect to: ";
-            cin  >> server;
-        }
-        while (server == sf::IpAddress::None);
-        }else if(server == sf::IpAddress::None){cout<<"Not valid server address: "<<server<<endl; return;}
+//        do
+//        {
+//            cout << "Type the address or name of the server to connect to: ";
+//            cin  >> server;
+//        }
+//        while (server == sf::IpAddress::None);
+//        }else if(server == sf::IpAddress::None){cout<<"Not valid server address: "<<server<<endl; return;}
 
 
         cout<<"Server is "<<server<<":"<<this->port<<endl;
+
 
         // Create a socket for communicating with the server
         //sf::UdpSocket socket;
@@ -439,36 +423,44 @@
         string cic="cic";
 
         //if (net.send(cic,  sizeof(cic), server, this->port) != sf::Socket::Done)
-        if (net.send(cic.c_str(),  cic.size() + 1, server, port) != sf::Socket::Done)
+        if (net.send(cic.c_str(),  cic.size() + 1, server, port) != sf::Socket::Done){
+            clientStarted=false;
             return;
+        }
         i++;
-        cout << i << "|->" << server << ":"<<port<<"| " << (string)cic << " " << endl;
+        if(isDebug) cout << i << "|->" << server << ":"<<port<<"| " << (string)cic << " " << endl;
 
 
         char in[128];
         size_t received;
         sf::IpAddress sender;
         unsigned short senderPort;
-        if (net.receive(in, sizeof(in), received, sender, senderPort) != sf::Socket::Done) return;
+        if (net.receive(in, sizeof(in), received, sender, senderPort) != sf::Socket::Done){
+            clientStarted=false;
+            return;
+        }
 
         string temp=in;
 
         i++;
-        cout << i << "|in|" << sender << ":"<<senderPort<<"| " << temp << " " << endl;
+        if(isDebug) cout << i << "|in|" << sender << ":"<<senderPort<<"| " << temp << " " << endl;
 
-        if(temp=="ok pe") {ID="pe"; }//cout<<ID<<" "<<floatToStr(p1.x)<<" "<<floatToStr(p1.y)<<endl;}
-        if(temp=="ok vt") {ID="vt"; }//cout<<ID<<" "<<floatToStr(p1.x)<<" "<<floatToStr(p1.y)<<endl;}
+        if(temp=="ok pe") {ID="pe";}//cout<<ID<<" "<<floatToStr(p1.x)<<" "<<floatToStr(p1.y)<<endl;}
+        if(temp=="ok vt") {ID="vt";}//cout<<ID<<" "<<floatToStr(p1.x)<<" "<<floatToStr(p1.y)<<endl;}
 
         if(temp=="ok pe" || temp=="ok vt"){
-                if(net.receive(in, sizeof(in), received, sender, senderPort) != sf::Socket::Done) return;
+                if(net.receive(in, sizeof(in), received, sender, senderPort) != sf::Socket::Done){
+                    clientStarted=false;
+                    return;
+                }
                 temp=in;
                 getPlayerData(temp, p2, isIdle2, isBack2, dir2, speed2, CurrentFrame2);
                 //p2.x=GetXCordFS(temp); p2.y=GetYCordFS(temp);
 
-        }else{cout<<"Server error"<<endl; return;}
+         }else getPlayerData(temp, p2, isIdle2, isBack2, dir2, speed2, CurrentFrame2);
 
         i++;
-        cout << i << "|in|" << sender << ":"<<senderPort<<"| " << temp << " " << endl;
+        if(isDebug) cout << i << "|in|" << sender << ":"<<senderPort<<"| " << temp << " " << endl;
 
         while(!isClose){// ListenToServer(); //listentoserver.launch();
         //if(isConsoleWindowFocussed && sf::Keyboard::isKeyPressed(sf::Keyboard::Slash)){ //SendToServer(server); //sendntoserver.launch();
@@ -490,7 +482,7 @@
             //if (net.receive(in, sizeof(in), received, sender, senderPort) != sf::Socket::Done) return;
             net.receive(in, sizeof(in), received, sender, senderPort);
             i++;
-            cout << i << "|in|" << sender << ":"<<senderPort<<"| " << in << " " << endl;
+            if(isDebug) cout << i << "|in|" << sender << ":"<<senderPort<<"| " << in << " " << endl;
 
             temp=in;
             //if(GetPIDfromC(temp)==ID){
@@ -505,11 +497,16 @@
 
         if(ID!=""){
         string answer="bye "+ID;
-        if (net.send(answer.c_str(),  answer.size() + 1, server, this->port) != sf::Socket::Done)
+        if (net.send(answer.c_str(),  answer.size() + 1, server, this->port) != sf::Socket::Done){
+            clientStarted=false;
             return;
-        i++;
-        cout << i << "|->" << server << ":"<<port<<"| " << (string)cic << " " << endl;
         }
+        i++;
+        if(isDebug) cout << i << "|->" << server << ":"<<port<<"| " << (string)cic << " " << endl;
+        }
+
+        isClose=false;
+        clientStarted=false;
 
         //ListenToServer();
         //SendToServer(server);
@@ -565,7 +562,7 @@
 
         mutex.lock();
 
-        cout << i << "|out|" << server << ":"<<port<<"| " << answer << " " << endl;
+        if(isDebug) cout << i << "|out|" << server << ":"<<port<<"| " << answer << " " << endl;
 
         mutex.unlock();
 
@@ -635,39 +632,6 @@
         isClose=true;
     }
 
-    string IntToString(int d){
-       stringstream ss;
-       ss << d;
-       return ss.str();
-    }
-
-    string WORDToStr(WORD d){
-       stringstream ss;
-       ss << d;
-       return ss.str();
-    }
-
-      sf::Time thetime;
-      sf::Clock elapsed;
-      //string tempp;
-
-    int GetFrameRate(){
-
-          static int frameCounter = 0;
-          static int fps = 0;
-          frameCounter++;
-          thetime = elapsed.getElapsedTime();
-          if(thetime.asMilliseconds() > 249)
-          {
-             fps = frameCounter;
-             frameCounter = 0;
-             elapsed.restart();
-          }
-          //tempp=IntToString(fps);
-          //return tempp;
-          return fps*4;
-    }
-
     string Net::getID(){
         return ID;
     }
@@ -690,172 +654,10 @@
         return stats;
     }
 
-    string FloatToStr(float val){
-    stringstream ss (stringstream::in | stringstream::out);
-    ss << val;
-    string test = ss.str();
-    return test;
+    sf::IpAddress Net::getIPAdress(){
+        return server;
     }
 
-    float StringToFloat(string val){
-    stringstream ss (stringstream::in | stringstream::out);
-    ss << val;
-    float test;
-    ss>>test;
-    return test;
+    bool Net::getClientStatus(){
+        return clientStarted;
     }
-
-    string BoolToStr(bool val){
-        stringstream ss (stringstream::in | stringstream::out);
-        ss << val;
-        string test = ss.str();
-        return test;
-    }
-
-    int GetXCord(string val){
-    stringstream ss (stringstream::in | stringstream::out);
-    ss << val;
-    string ok, peorvt;
-    float x, y;
-    //ss>>ok>>peorvt>>x>>y;
-    ss>>ok>>x>>y>>peorvt;
-    //cout<<val<<"|"<<ok<<"|"<<x<<"|"<<y<<endl;
-    return x;
-    }
-
-    int GetYCord(string val){
-    stringstream ss (stringstream::in | stringstream::out);
-    ss << val;
-    string ok, peorvt;
-    float x, y;
-    //ss>>ok>>peorvt>>x>>y;
-    ss>>ok>>x>>y>>peorvt;
-    return y;
-    }
-
-    int GetXCordFS(string val){
-    stringstream ss (stringstream::in | stringstream::out);
-    ss << val;
-    string ok, peorvt;
-    float x, y;
-    ss>>ok>>peorvt>>x>>y;
-    ///cout<<val<<"|"<<ok<<"|"<<x<<"|"<<y<<endl;
-    return x;
-    }
-
-    int GetYCordFS(string val){
-    stringstream ss (stringstream::in | stringstream::out);
-    ss << val;
-    string ok, peorvt;
-    float x, y;
-    ss>>ok>>peorvt>>x>>y;
-    return y;
-    }
-
-    string GetPID(string val){
-    stringstream ss (stringstream::in | stringstream::out);
-    ss << val;
-    string id;
-    ss>>id;
-    return id;
-    }
-
-    string GetPIDfromC(string val){
-    stringstream ss (stringstream::in | stringstream::out);
-    ss << val;
-    string ok, id;
-    ss>>ok>>id;
-    cout<<id<<endl;
-    return id;
-
-//    string answer;
-//    answer+=val.at(3); answer+=val.at(4);
-//    return answer;
-    }
-
-    void getPlayerData(string temp, sf::Vector2f& p, int& isIdle, int& isBack, int& dir, float& speed, int& CurrentFrame){
-        stringstream ss (stringstream::in | stringstream::out);
-        ss<<temp;
-        string ok, id;
-        ss>>ok>>id>>isIdle>>isBack>>dir>>speed>>CurrentFrame>>p.x>>p.y;
-        //cout<<"CLIENT "<<isIdle<<" "<<isBack<<" "<<dir<<" "<<speed<<" "<<CurrentFrame<<" "<<p.x<<" "<<p.y<<endl;
-//        string comand="mshta javascript:alert(\""+ss.str()+"\");close();";
-//        system(comand.c_str()); //"mshta javascript:alert(\"Message\n\nMultiple\nLines\ntoo!\");close();"
-    }
-
-    void getPlayerData2(string temp, sf::Vector2f& p, int& isIdle, int& isBack, int& dir, float& speed, int& CurrentFrame){
-        stringstream ss (stringstream::in | stringstream::out);
-        ss<<temp;
-        string ok, id;
-        ss>>ok>>isIdle>>isBack>>dir>>speed>>CurrentFrame>>p.x>>p.y;
-//        string comand="mshta javascript:alert(\""+ss.str()+"\");close();";
-//        system(comand.c_str()); //"mshta javascript:alert(\"Message\n\nMultiple\nLines\ntoo!\");close();"
-    };
-
-    void drawText(sf::RenderWindow& window, sf::Font& font, unsigned int size, float x, float y, string text){
-        //sf::Font font;
-        //if (!font.loadFromFile(dawae.c_str())) cout<<"Missing some font: \""<<dawae<<"\"!"<<endl; else
-        //    tekst.setFont(font);
-        sf::Text tekst;
-        tekst.setFont(font);
-        tekst.setFillColor(sf::Color(255, 0, 0));
-        tekst.setPosition(x, y);
-        tekst.setCharacterSize(size);
-        tekst.setString(text);
-        window.draw(tekst);
-    }
-
-    void MakeDISASTER(){
-        system("mshta javascript:alert(\"SOON YOU WILL BE CRASHED!\");close();");
-        float i=1, frequency=1000, time=100;
-        //DisplayResourceNAMessageBox();
-        Beep(frequency, time); cout<<"BEEP ";
-        sf::sleep(sf::seconds(i)); i-=0.1;
-        Beep(frequency, time); cout<<"BEEP ";
-        sf::sleep(sf::seconds(i)); i-=0.1;
-        Beep(frequency, time); cout<<"BEEP ";
-        sf::sleep(sf::seconds(i)); i-=0.1;
-        Beep(frequency, time); cout<<"BEEP ";
-        sf::sleep(sf::seconds(i)); i-=0.1;
-        Beep(frequency, time); cout<<"BEEP ";
-        sf::sleep(sf::seconds(i)); i-=0.1;
-        Beep(frequency, time); cout<<"BEEP ";
-        sf::sleep(sf::seconds(i)); i-=0.1;
-        Beep(frequency, time); cout<<"BEEP ";
-        sf::sleep(sf::seconds(i)); i-=0.1;
-        Beep(frequency, time); cout<<"BEEP ";
-        sf::sleep(sf::seconds(i)); i-=0.1;
-        Beep(frequency, time); cout<<"BEEP ";
-        sf::sleep(sf::seconds(i)); i-=0.1;
-        Beep(frequency, time); cout<<"BEEP ";
-        sf::sleep(sf::seconds(i)); i-=0.1;
-        Beep(frequency, time); cout<<"BEEP ";
-        sf::sleep(sf::seconds(i)); i-=0.1;
-        Beep(frequency, time); cout<<"BEEP ";
-        sf::sleep(sf::seconds(i)); i-=0.1;
-        Beep(frequency, time); cout<<"BEEP ";
-        sf::sleep(sf::seconds(i)); i-=0.1;
-        Beep(frequency, time); cout<<"BEEP BOOM\n";
-        Beep(frequency-frequency/2, time+time*3);
-        kill_this_life
-    }
-
-    int DisplayResourceNAMessageBox(){
-    int msgboxID = MessageBox(
-        NULL,
-        (LPCSTR)L"SOON YOU WILL BE CRASHED!",
-        (LPCSTR)L"CRASH TIMER",
-        MB_ICONWARNING | MB_YESNO | MB_DEFBUTTON1 );
-
-    switch (msgboxID)
-    {
-    case IDYES:
-        // TODO: add code
-        break;
-    case IDNO:
-        // TODO: add code
-        break;
-    }
-
-    return msgboxID;
-}
