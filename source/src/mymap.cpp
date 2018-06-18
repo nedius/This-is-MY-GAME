@@ -156,7 +156,7 @@
             ///                  " "
 
             i=0;
-            caveMap[i]="00000000tttttttttttt"; i++; //1
+            caveMap[i]="tttttttttttttttttttt"; i++; //1
             caveMap[i]="ttDDDD00DDtttttttttt"; i++;
             caveMap[i]="tD00000000Dttttttttt"; i++;
             caveMap[i]="tj000000000tttDDDttt"; i++;
